@@ -1,4 +1,12 @@
-import geopy, sys, statistics, math
+import sys
+
+try:
+    import geopy
+except ImportError:
+    print("This script requires the geopy module. Use `pip install geopy`")
+    sys.exit()
+
+import statistics, math
 from geopy import distance
 
 PATH_TO_GTFS = "" #specify path to your extracted, plain-text GTFS data here, or run in same directory
