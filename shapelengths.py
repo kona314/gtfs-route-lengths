@@ -14,9 +14,9 @@ PATH_TO_GTFS = "" #specify path to your extracted, plain-text GTFS data here, or
 if PATH_TO_GTFS == "":
     PATH_TO_GTFS = input("Where is your extracted GTFS data? Leave blank for same directory.\n")
 
-shapes = open("{}/shapes.txt".format(PATH_TO_GTFS), "r")
-routes = open("{}/routes.txt".format(PATH_TO_GTFS), "r")
-trips = open("{}/trips.txt".format(PATH_TO_GTFS), "r")
+shapes = open("{}/shapes.txt".format(PATH_TO_GTFS), "r", newline='\n')
+routes = open("{}/routes.txt".format(PATH_TO_GTFS), "r", newline='\n')
+trips = open("{}/trips.txt".format(PATH_TO_GTFS), "r", newline='\n')
 
 routesForShapes = {}
 lengths = {}
@@ -24,18 +24,19 @@ lengths = {}
 def matchRoutes():
     routesTemp = {}
     with routes as r:
-        routeHeader = next(r).split(",")
+        routeHeader = next(r).replace("\n","").split(",")
+        print(routeHeader)
         ROUTE_ID = routeHeader.index("route_id")
         ROUTE_NAME = routeHeader.index("route_short_name")
         for route in routes:
-            route = route.split(",")
+            route = route.replace("\n","").split(",")
             routesTemp[route[ROUTE_ID]] = route[ROUTE_NAME]
     with trips as t:
-        tripHeader = next(t).split(",")
+        tripHeader = next(t).replace("\n","").split(",")
         SHAPE_ID = tripHeader.index("shape_id")
         ROUTE_ID = tripHeader.index("route_id")
         for trip in trips:
-            trip = trip.split(",")
+            trip = trip.replace("\n","").split(",")
             routesForShapes[trip[SHAPE_ID]] = routesTemp[trip[ROUTE_ID]]
 
 def getLengths():
@@ -44,12 +45,12 @@ def getLengths():
     lastll = None
     first = True
     with shapes as s:
-        shapesHeader = next(s).split(",")
+        shapesHeader = next(s).replace("\n","").split(",")
         SHAPE_ID = shapesHeader.index("shape_id")
         SHAPE_PT_LAT = shapesHeader.index("shape_pt_lat")
         SHAPE_PT_LON = shapesHeader.index("shape_pt_lon")
         for part in s:
-            l = part.split(",")
+            l = part.replace("\n","").split(",")
             thisID = l[SHAPE_ID]
             lat = l[SHAPE_PT_LAT]
             lon = l[SHAPE_PT_LON]
@@ -58,7 +59,7 @@ def getLengths():
                 currentId = thisID
                 lastll = thisll
                 first = False
-            if currentId != thisID:
+            if currentId != thisID and currentId != "512:97":
                 if currentId in routesForShapes and routesForShapes[currentId] in lengths:
                     lengths[routesForShapes[currentId]] = statistics.mean([lengths[routesForShapes[currentId]],currentLength])
                 elif currentId in routesForShapes: 
